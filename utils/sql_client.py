@@ -20,7 +20,6 @@ class SQLClient:
         elif mask != '':
             name = mask
 
-
         query = f"""
         SELECT name, mac_prefix from vendors where {name}
         """

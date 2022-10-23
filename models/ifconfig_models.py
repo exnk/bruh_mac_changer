@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Any, Union
+from typing import Union
 
 
 class IP4(BaseModel):
@@ -46,4 +46,3 @@ class Ifmodel(BaseModel):
     metric: Union[str, None]
     tx: TX
     rx: RX
-

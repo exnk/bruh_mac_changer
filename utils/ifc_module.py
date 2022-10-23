@@ -2,7 +2,6 @@ import copy
 from jc import parse
 from models.ifconfig_models import Ifmodel
 from utils.interfaces import Interface
-from rich.pretty import pretty_repr
 import sys
 
 
