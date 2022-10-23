@@ -60,4 +60,3 @@ class SQLClient:
         query = """delete from {} """
         for table in tables:
             self.cursor.execute(query.format(table))
-
