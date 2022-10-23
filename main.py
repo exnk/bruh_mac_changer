@@ -14,6 +14,8 @@ from models.ifconfig_models import Ifmodel
 from utils.helper import generate_mac, get_vendor_mask, choice_random_vendor_mask
 
 
+SEC = "Optional arguments"
+
 app = typer.Typer()
 lens = os.popen('ifconfig -l').read().split()
 __db_cli = SQLClient('identifier.sqlite')
@@ -47,12 +49,12 @@ def write_output(data: Union[Ifmodel, dict[Ifmodel]], fmt: str, name: str = 'out
             out_file.write(json.dumps(data, indent=4))
 
 
-@app.command()
+@app.command(help='Вывести лог изменения MAC')
 def show_logs():
     print('Упс, а тут пустая заглушка')
 
 
-@app.command()
+@app.command(help='Удалить данные из таблиц логов и backup MAC адресов')
 def truncate_table():
     ask = typer.prompt('Вы действительно хотите отчистить таблицы? [Y/N]',
                        confirmation_prompt=True)
@@ -62,7 +64,7 @@ def truncate_table():
         print('Удаления нет, но вы держитесь :3\nПо крайней мере, Вы пытались')
 
 
-@app.command()
+@app.command(help="Восстановить базовый MAC из backup")
 def restore():
     data_for_restore = __db_cli.get_stored_info()
     data = IFConfig(os.popen('ifconfig -a').read())
@@ -78,9 +80,15 @@ def restore():
 
 
 @app.command(help='Изменение MAC адреса на интерфейсе')
-def change(interface: str = typer.Argument(..., callback=interface_callback),
-           vendor: str = typer.Option(default='random'),
-           mac: str = typer.Option(default='')
+def change(interface: str = typer.Argument(...,
+                                           callback=interface_callback,
+                                           help='Название интерфейса на котором нужно выполнить замену'),
+           vendor: str = typer.Option(default='random',
+                                      help='Имя вендера. Если у вендера множество масок, то берет случайную',
+                                      rich_help_panel=SEC),
+           mac: str = typer.Option(default='',
+                                   help='Задать MAC адрес вручную',
+                                   rich_help_panel=SEC)
            ):
     iface = IFConfig(os.popen(f'ifconfig {interface}').read()).interface(interface=interface)
     if vendor and vendor != 'random':
@@ -93,13 +101,21 @@ def change(interface: str = typer.Argument(..., callback=interface_callback),
     iface.change_mac(mac)
 
 
-@app.command()
+@app.command(help='Получить информацию по интерфейсам')
 def get_info(interface: str = typer.Option(default='all',
-                                           callback=interface_callback),
+                                           callback=interface_callback,
+                                           help='Название интерфейса по которому нужно отобразить информацию',
+                                           rich_help_panel=SEC),
              output: str = typer.Option(default='',
-                                        callback=format_callback),
+                                        callback=format_callback,
+                                        help='В каком виде выводить.',
+                                        show_default='json/yaml/txt - для вывода в файл в соответствующем формате\n'
+                                                     '{имя_файла}.json/yaml/txt - для вывода в конкретный файл',
+                                        rich_help_panel=SEC),
              show_mac: bool = typer.Option(default=False,
-                                           is_flag=True)
+                                           is_flag=True,
+                                           help='Отобразить только имя интерфейса и его MAC',
+                                           rich_help_panel=SEC)
              ) -> None:
     data = IFConfig(os.popen('ifconfig -a').read())
     sys.stdout.write(f'Обработка interface {interface} | Output {output if output != "" else "console"}')
