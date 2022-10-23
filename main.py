@@ -59,7 +59,9 @@ def change(): ...
 def get_info(interface: str = typer.Option(default='all',
                                            callback=interface_callback),
              output: str = typer.Option(default='',
-                                        callback=format_callback)
+                                        callback=format_callback),
+             show_mac: bool = typer.Option(default=False,
+                                           is_flag=True)
              ) -> None:
     data = IFConfig(os.popen('ifconfig -a').read())
     sys.stdout.write(f'Обработка interface {interface} | Output {output if output != "" else "console"}')
@@ -80,7 +82,14 @@ def get_info(interface: str = typer.Option(default='all',
                          fmt=output
                          )
     else:
-        pprint(data)
+        if show_mac:
+            if isinstance(data, Ifmodel):
+                data = f'{data.name} : {data.mac}'
+            else:
+                data = '\n'.join([f'{v.name} : {v.mac} ' for k, v in data.items()])
+            print(data)
+        else:
+            pprint(data)
 
 
 if __name__ == '__main__':
