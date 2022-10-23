@@ -1,18 +1,22 @@
-import sys
-
-import typer
 import os
+import sys
+import json
+
+import yaml
+import typer
+
 from typing import Union
+from rich.pretty import pprint
 
 from utils.ifc_module import IFConfig
+from utils.sql_client import SQLClient
 from models.ifconfig_models import Ifmodel
-import json
-import yaml
-from rich.pretty import pprint
+from utils.helper import generate_mac, get_vendor_mask, choice_random_vendor_mask
 
 
 app = typer.Typer()
 lens = os.popen('ifconfig -l').read().split()
+__db_cli = SQLClient('identifier.sqlite')
 
 
 def interface_callback(interface: str) -> Union[bool, str]:
@@ -44,15 +48,49 @@ def write_output(data: Union[Ifmodel, dict[Ifmodel]], fmt: str, name: str = 'out
 
 
 @app.command()
-def truncate_table(): ...
+def show_logs():
+    print('Упс, а тут пустая заглушка')
 
 
 @app.command()
-def restore(): ...
+def truncate_table():
+    ask = typer.prompt('Вы действительно хотите отчистить таблицы? [Y/N]',
+                       confirmation_prompt=True)
+    if ask in ['Y', 'yes', 'y', 'YES']:
+        __db_cli.truncate_data()
+    else:
+        print('Удаления нет, но вы держитесь :3\nПо крайней мере, Вы пытались')
 
 
 @app.command()
-def change(): ...
+def restore():
+    data_for_restore = __db_cli.get_stored_info()
+    data = IFConfig(os.popen('ifconfig -a').read())
+    interfaces = data.__repr__().keys()
+    restored = []
+    for item in data_for_restore:
+        if item[0] in interfaces and item[1] != data.interface(item[0])['mac']:
+            interface = data.interface(item[0])
+            interface.change_mac(mac=item[1],
+                                 restore=True)
+            restored.append(interface['name'])
+    print(f'Восстановлены значения у {restored}')
+
+
+@app.command(help='Изменение MAC адреса на интерфейсе')
+def change(interface: str = typer.Argument(..., callback=interface_callback),
+           vendor: str = typer.Option(default='random'),
+           mac: str = typer.Option(default='')
+           ):
+    iface = IFConfig(os.popen(f'ifconfig {interface}').read()).interface(interface=interface)
+    if vendor and vendor != 'random':
+        data = get_vendor_mask(vendor)[1]
+    elif mac:
+        data = mac
+    else:
+        data = choice_random_vendor_mask()[1]
+    mac = generate_mac(data)
+    iface.change_mac(mac)
 
 
 @app.command()

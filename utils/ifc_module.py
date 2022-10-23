@@ -1,44 +1,23 @@
-import copy
-from jc import parse
-from models.ifconfig_models import Ifmodel
-from utils.interfaces import Interface
 import sys
+
+from utils.sql_client import SQLClient
+from utils.interfaces import Interface, normalize_to_models
 
 
 class IFConfig:
 
     def __init__(self, raw: str) -> None:
-        self.__raw: dict[str, Interface] = self.__normalize_to_models(raw)
+        self.__sql: SQLClient = SQLClient('./identifier.sqlite')
+        self.__raw: dict[str, Interface] = normalize_to_models(raw, self.__sql)
 
-    def __str__(self):
+    def __str__(self) -> dict:
         return {k: v.__repr__() for k, v in self.__raw.items()}
 
-    def __repr__(self):
+    def __repr__(self) -> dict:
         return {k: v.__repr__() for k, v in self.__raw.items()}
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> Interface:
         return self.__raw[item]
-
-    @staticmethod
-    def __normalize_to_models(raw: str) -> dict:
-        data: list[dict] = parse('ifconfig', raw)
-        result: dict[str, Interface] = {}
-        for item in data:
-            res = copy.deepcopy(item)
-            tx = {k: res.pop(k) for k, v in item.items() if 'tx' in k}
-            rx = {k: res.pop(k) for k, v in item.items() if 'rx' in k}
-            ip4 = {k: res.pop(k) for k, v in item.items() if 'ipv4' in k}
-            ip6 = {k: res.pop(k) for k, v in item.items() if 'ipv6' in k}
-            res.update(dict(
-                tx=tx,
-                rx=rx,
-                ip4=ip4,
-                ip6=ip6
-            ))
-            model = Ifmodel(**res)
-            interface = Interface(model)
-            result.update({model.name: interface})
-        return result
 
     def interface(self, interface: str) -> Interface:
         try:

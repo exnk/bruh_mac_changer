@@ -1,5 +1,5 @@
 import sqlite3
-import sys
+
 from typing import Union
 
 
@@ -54,3 +54,10 @@ class SQLClient:
         query = f"""insert into change_log (interface, old_value, new_value) 
         values ('{interface}','{old_value}', '{new_value}')"""
         self.cursor.executescript(query)
+
+    def truncate_data(self):
+        tables = ('change_log', 'restore_data')
+        query = """delete from {} """
+        for table in tables:
+            self.cursor.execute(query.format(table))
+
