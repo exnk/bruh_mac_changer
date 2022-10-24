@@ -43,19 +43,26 @@ class SQLClient:
             query = """select * from restore_data"""
             return self.cursor.execute(query).fetchall()
 
-    def store_interface(self, interface: str, value: str) -> bool:
+    def store_interface(self,
+                        interface: str,
+                        value: str
+                        ) -> bool:
         if not self.get_stored_info(interface=interface):
             query = f"""insert into restore_data (interface, value) values ('{interface}','{value}')"""
             self.cursor.executescript(query)
             assert self.get_stored_info(interface=interface) == (interface, value)
         return True
 
-    def write_log(self, interface: str, old_value: str, new_value: str) -> None:
+    def write_log(self,
+                  interface: str,
+                  old_value: str,
+                  new_value: str
+                  ) -> None:
         query = f"""insert into change_log (interface, old_value, new_value) 
         values ('{interface}','{old_value}', '{new_value}')"""
         self.cursor.executescript(query)
 
-    def truncate_data(self):
+    def truncate_data(self) -> None:
         tables = ('change_log', 'restore_data')
         query = """delete from {} """
         for table in tables:

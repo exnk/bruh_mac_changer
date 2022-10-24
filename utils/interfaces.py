@@ -30,7 +30,7 @@ def normalize_to_models(raw: str,
             ip6=ip6
         ))
         model_ = Ifmodel(**res)
-        interface = Interface(model_, client)
+        interface = Interface(interface_model=model_, sql=client)
         result.update({model_.name: interface})
 
     if model and len(result) == 1:
@@ -40,32 +40,38 @@ def normalize_to_models(raw: str,
 
 class Interface:
 
-    def __init__(self, interface_model: Ifmodel, sql: SQLClient) -> None:
+    def __init__(self,
+                 interface_model: Ifmodel,
+                 sql: SQLClient
+                 ) -> None:
         self.__client = sql
         self.__model = interface_model
 
-    def __str__(self):
+    def __str__(self) -> Ifmodel:
         return self.__model
 
-    def __repr__(self):
+    def __repr__(self) -> Ifmodel:
         return self.__model
 
     def __getitem__(self, item):
         return self.__model.__getattribute__(item)
 
-    def __store_data(self):
+    def __store_data(self) -> None:
         self.__client.store_interface(interface=self.__model.name,
                                       value=self.__model.mac)
 
-    def __write_log(self, old_mac: str):
+    def __write_log(self, old_mac: str) -> None:
         self.__client.write_log(interface=self.__model.name,
                                 old_value=old_mac,
                                 new_value=self.__model.mac)
 
-    def _get_old_data(self):
+    def _get_old_data(self) -> list:
         return self.__client.get_stored_info(self.__model.name)
 
-    def change_mac(self, mac: str = None, restore: bool = False) -> None:
+    def change_mac(self,
+                   mac: str = None,
+                   restore: bool = False
+                   ) -> None:
         if restore:
             old_data = self._get_old_data()
             mac = old_data[1]

@@ -6,7 +6,9 @@ from utils.interfaces import Interface, normalize_to_models
 
 class IFConfig:
 
-    def __init__(self, raw: str) -> None:
+    def __init__(self,
+                 raw: str
+                 ) -> None:
         self.__sql: SQLClient = SQLClient('./identifier.sqlite')
         self.__raw: dict[str, Interface] = normalize_to_models(raw, self.__sql)
 
@@ -19,7 +21,9 @@ class IFConfig:
     def __getitem__(self, item) -> Interface:
         return self.__raw[item]
 
-    def interface(self, interface: str) -> Interface:
+    def interface(self,
+                  interface: str
+                  ) -> Interface:
         try:
             assert interface in self.__raw
         except AssertionError:
