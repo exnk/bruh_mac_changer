@@ -6,6 +6,7 @@ import subprocess
 from typing import Union
 
 from jc import parse
+from rich.pretty import pprint
 
 from utils.sql_client import SQLClient
 from models.ifconfig_models import Ifmodel
@@ -88,3 +89,4 @@ class Interface:
         self.__model.mac = result.mac
         assert self.__model.mac != old_mac
         self.__write_log(old_mac=old_mac)
+        pprint(f'Mac on interface {self.__model.name} changed from {old_mac} to {self.__model.mac}')
