@@ -17,7 +17,6 @@ from models.ifconfig_models import Ifmodel
 SEC = "Optional arguments"
 
 app = typer.Typer()
-lens = os.popen('ifconfig -l').read().split()
 __db_cli = SQLClient('data.sqlite')
 
 
