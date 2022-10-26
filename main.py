@@ -10,7 +10,7 @@ from rich.pretty import pprint
 
 from utils.ifc_module import IFConfig
 from utils.sql_client import SQLClient
-from utils.helper import generate_mac, get_vendor_mask, choice_random_vendor_mask
+from utils.helper import generate_mac, get_vendor_mask, choice_random_vendor_mask, get_logs
 from models.ifconfig_models import Ifmodel
 
 
@@ -51,7 +51,7 @@ def write_output(data: Union[Ifmodel, dict[Ifmodel]], fmt: str, name: str = 'out
 
 @app.command(help='Вывести лог изменения MAC')
 def show_logs():
-    print('Упс, а тут пустая заглушка')
+    pprint(get_logs())
 
 
 @app.command(help='Удалить данные из таблиц логов и backup MAC адресов')

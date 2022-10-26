@@ -28,3 +28,8 @@ def generate_mac(mask: str) -> str:
     assert len(mask) == 6
     nums = ':'.join(map(lambda x: "%02x" % x, (randint(0x00, 0x7f), randint(0x00, 0xff), randint(0x00, 0xff))))
     return ':'.join([mask[0:2], mask[2:4], mask[4:], nums]).lower()
+
+
+def get_logs() -> list:
+    cli = SQLClient(DB)
+    return cli.show_logs()

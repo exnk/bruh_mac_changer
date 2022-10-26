@@ -67,3 +67,8 @@ class SQLClient:
         query = """delete from {} """
         for table in tables:
             self.cursor.execute(query.format(table))
+
+    def show_logs(self) -> list:
+        query = """select * from change_log"""
+        res = self.cursor.execute(query).fetchall()
+        return res
