@@ -98,6 +98,7 @@ def change(interface: str = typer.Argument(...,
     else:
         data = choice_random_vendor_mask()[1]
     mac = generate_mac(data)
+    pprint(iface)
     iface.change_mac(mac)
 
 
