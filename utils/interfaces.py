@@ -80,12 +80,11 @@ class Interface:
                 return None
         self.__store_data()
         old_mac = self.__model.mac
-        print(f'ifconfig {self.__model.name} hw ether {mac}')
         subprocess.call(['ifconfig', self.__model.name, 'down'])
         subprocess.call(['ifconfig', self.__model.name, 'hw', 'ether', mac])
         subprocess.call(['ifconfig', self.__model.name, 'up'])
         data = os.popen(f'ifconfig {self.__model.name}').read()
         result = normalize_to_models(data, self.__client, model=True)
         self.__model.mac = result.mac
-        # assert self.__model.mac != old_mac
+        assert self.__model.mac != old_mac
         self.__write_log(old_mac=old_mac)

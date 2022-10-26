@@ -22,7 +22,8 @@ __db_cli = SQLClient('data.sqlite')
 
 
 def interface_callback(interface: str) -> Union[bool, str]:
-    if interface in lens or interface == 'all':
+    res = os.popen(f'ifconfig {interface}').read()
+    if interface in res or interface == 'all':
         return interface
     return False
 
