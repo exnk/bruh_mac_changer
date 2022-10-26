@@ -1,6 +1,6 @@
 import sqlite3
 
-connection = sqlite3.connect('identifier.sqlite')
+connection = sqlite3.connect('data.sqlite')
 cursor = connection.cursor()
 
 with open('nmap-mac-prefixes.txt', 'r') as f:

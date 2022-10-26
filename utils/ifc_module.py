@@ -9,7 +9,7 @@ class IFConfig:
     def __init__(self,
                  raw: str
                  ) -> None:
-        self.__sql: SQLClient = SQLClient('./identifier.sqlite')
+        self.__sql: SQLClient = SQLClient('./data.sqlite')
         self.__raw: dict[str, Interface] = normalize_to_models(raw, self.__sql)
 
     def __str__(self) -> dict:

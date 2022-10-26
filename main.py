@@ -1,24 +1,24 @@
 import os
 import sys
 import json
+from typing import Union
 
 import yaml
 import typer
 
-from typing import Union
 from rich.pretty import pprint
 
 from utils.ifc_module import IFConfig
 from utils.sql_client import SQLClient
-from models.ifconfig_models import Ifmodel
 from utils.helper import generate_mac, get_vendor_mask, choice_random_vendor_mask
+from models.ifconfig_models import Ifmodel
 
 
 SEC = "Optional arguments"
 
 app = typer.Typer()
 lens = os.popen('ifconfig -l').read().split()
-__db_cli = SQLClient('identifier.sqlite')
+__db_cli = SQLClient('data.sqlite')
 
 
 def interface_callback(interface: str) -> Union[bool, str]:
@@ -109,7 +109,7 @@ def get_info(interface: str = typer.Option(default='all',
              output: str = typer.Option(default='',
                                         callback=format_callback,
                                         help='В каком виде выводить.',
-                                        show_default='json/yaml/txt - для вывода в файл в соответствующем формате\n'
+                                        show_default='json/yaml/txt - для вывода в файл в соответствующем формате\n' # noqa
                                                      '{имя_файла}.json/yaml/txt - для вывода в конкретный файл',
                                         rich_help_panel=SEC),
              show_mac: bool = typer.Option(default=False,

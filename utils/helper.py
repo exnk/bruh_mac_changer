@@ -3,7 +3,7 @@ from random import randint, choice
 from utils.sql_client import SQLClient
 
 
-DB: str = 'identifier.sqlite'
+DB: str = 'data.sqlite'
 
 
 def choice_random_vendor_mask() -> tuple:
