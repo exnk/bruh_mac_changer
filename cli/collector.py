@@ -1,5 +1,5 @@
 import typer
-from utils.get_contact import ContactParse
+from utils.page_parser import ContactParse
 from utils.recon import Recon
 
 
@@ -7,8 +7,10 @@ app = typer.Typer()
 
 
 @app.command()
-def get_contacts(host: str = typer.Argument(..., help='Название интерфейса на котором нужно выполнить замену'),
-                 mods: str = typer.Option(default=['recon'])):
+def get_contacts(host: str = typer.Argument(..., help='Название хоста который хотим пройти'),
+                 mods: str = typer.Option(default=['recon']),
+                 wordlist: str = typer.Option(default=None),
+                 autowalk: bool = typer.Option(default=False, is_flag=True)):
     if ',' in mods:
         mods = mods.split(',')
     if 'recon' in mods:
@@ -16,5 +18,5 @@ def get_contacts(host: str = typer.Argument(..., help='Название инте
         Recon(host).run()
     if 'contact' in mods:
         print('run contact parse')
-        ContactParse(host).run_walk()
+        ContactParse(host, wordlist=wordlist, autowalk=autowalk).run_walk()
     print('Парсинг закончили, см папку Result')
