@@ -1,6 +1,5 @@
 import typer
 from utils.page_parser import ContactParse
-from utils.recon import Recon
 
 
 app = typer.Typer()
@@ -15,7 +14,7 @@ def get_contacts(host: str = typer.Argument(..., help='Название хост
         mods = mods.split(',')
     if 'recon' in mods:
         print('Run base recon')
-        Recon(host).run()
+        print('later')
     if 'contact' in mods:
         print('run contact parse')
         ContactParse(host, wordlist=wordlist, autowalk=autowalk).run_walk()
