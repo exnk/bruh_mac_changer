@@ -1,5 +1,6 @@
 from time import sleep
 from requests import Session
+from requests.exceptions import ReadTimeout, ConnectionError
 from json import dumps, dump
 from models.recon_models import Host, Cert, Subdomain, Address, MX
 
@@ -47,13 +48,11 @@ class Recon:
         """TODO"""
         url = f'https://api.hackertarget.com/hostsearch/?q={self.url}'
         res = self.session.get(url).text.split('\n')
-        print(res)
         for item in res:
             tmp = item.split(',')
             try:
                 self.model.subdomains.append(Subdomain(url=tmp[0], ip=tmp[1]))
-            except IndexError:
-                pass
+            except IndexError: pass
 
     def dns_recon(self):
         headers = {'x-api-key': '53681419-4ce1-4132-85ac-10310ef7d642', 'Content-Type': 'application/json'}
@@ -70,7 +69,6 @@ class Recon:
 
     def check_subdomains(self):
         for item in self.model.subdomains:
-            print(item)
             domain = item.url
             domains = []
             if 'http:' in domain:
@@ -83,10 +81,10 @@ class Recon:
                 domains.append(f'http://{domain}')
                 domains.append(f'https://{domain}')
             for dm in domains:
-                res = self.session.get(dm)
-                if res.status_code < 400:
+                try:
+                    self.session.get(dm, timeout=1)
                     print(f'[+] domain {dm} avaliable')
-                else:
+                except (ReadTimeout, ConnectionError):
                     print(f'[-] domain {dm} unavaliable')
                 sleep(0.5)
 
