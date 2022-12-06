@@ -40,13 +40,15 @@ class ContactParse:
         self.walk_list = []
         self._autorun = False
         if wordlist:
-            if exists(wordlist):
-                with open(wordlist, 'r', encoding='utf-8') as wl:
-                    self.walk_list.extend(wl.readlines())
-            else:
-                if wordlist in listdir('./data/wordlists/'):
-                    with open('./data/wordlists/' + wordlist, 'r', encoding='utf-8') as wl:
+            wordlist = wordlist.split(',') if ',' in wordlist else wordlist
+            for lst in wordlist:
+                if exists(lst):
+                    with open(lst, 'r', encoding='utf-8') as wl:
                         self.walk_list.extend(wl.readlines())
+                else:
+                    if lst in listdir('./data/wordlists/'):
+                        with open('./data/wordlists/' + wordlist, 'r', encoding='utf-8') as wl:
+                            self.walk_list.extend(wl.readlines())
         self.__ui = False
         self.__autowalk = autowalk
 
