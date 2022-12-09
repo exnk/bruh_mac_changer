@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 class Subdomain(BaseModel):
     url: str = Field(default=None)
     ip: str = Field(default=None)
+    tech: None | dict = Field(default=None)
 
 
 class Cert(BaseModel):
@@ -25,6 +26,7 @@ class MX(BaseModel):
 
 class Host(BaseModel):
     url: str = Field(default=None)
+    tech: None | dict = Field(default=None)
     subdomains: list[Subdomain] = Field(default=[])
     A: list[Address] = Field(default=[])
     mx: list[MX] = Field(default=[])

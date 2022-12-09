@@ -1,8 +1,9 @@
 from time import sleep
 from requests import Session
 from requests.exceptions import ReadTimeout, ConnectionError
-from json import dumps
+from json import dumps, dump
 from models.recon_models import Host, Cert, Subdomain, Address, MX
+from Wappalyzer import Wappalyzer, WebPage
 
 
 class Recon:
@@ -14,6 +15,9 @@ class Recon:
         self.url = self.__normalize_url(url)
         self.model = Host(url=self.url)
         self.check_sub = check_subdomains
+        self.wapp = Wappalyzer.latest()
+        tech = WebPage.new_from_url(self.url, False)
+        self.model.tech = tech
 
     @staticmethod
     def __normalize_url(url):
@@ -53,7 +57,8 @@ class Recon:
             tmp = item.split(',')
             try:
                 self.model.subdomains.append(Subdomain(url=tmp[0], ip=tmp[1]))
-            except IndexError: pass
+            except IndexError:
+                pass
 
     def dns_recon(self):
         headers = {'x-api-key': '53681419-4ce1-4132-85ac-10310ef7d642', 'Content-Type': 'application/json'}
@@ -70,6 +75,7 @@ class Recon:
 
     def check_subdomains(self):
         print('Start subdomains availability check')
+
         for item in self.model.subdomains:
             domain = item.url
             domains = []
@@ -84,7 +90,10 @@ class Recon:
                 domains.append(f'https://{domain}')
             for dm in domains:
                 try:
-                    self.session.get(dm, timeout=1)
+                    resp = self.session.get(dm, timeout=1)
+                    wp = WebPage.new_from_response(resp)
+                    tech = self.wapp.analyze_with_versions_and_categories(wp)
+                    item.tech = tech
                     print(f'--[+] domain {dm} avaliable')
                 except (ReadTimeout, ConnectionError):
                     print(f'--[-] domain {dm} unavaliable')
@@ -101,5 +110,5 @@ class Recon:
         if self.check_sub:
             self.check_subdomains()
         with open('./result/rec.json', 'w') as js:
-            js.write(self.model.json())
+            dump(self.model.dict(), js, indent=4, sort_keys=True)
         print('[+] Recon done. Output result/rec.json')
