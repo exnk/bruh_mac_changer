@@ -1,7 +1,7 @@
 from time import sleep
 from requests import Session
 from requests.exceptions import ReadTimeout, ConnectionError
-from json import dumps, dump
+from json import dumps
 from models.recon_models import Host, Cert, Subdomain, Address, MX
 
 
@@ -26,11 +26,12 @@ class Recon:
         res = self.session.get(
             f'https://osint.bevigil.com/api/{self.url}/subdomains/',
             headers=headers)
+        return res.json()
 
     def threat(self):
         """Not work now Deprecated?"""
         params = {'q': self.url, 'rt': 5}
-        res = self.session.get('https://api.threatminer.org/v2/domain.php', params=params)
+        self.session.get('https://api.threatminer.org/v2/domain.php', params=params)
 
     def cert(self):
         """TODO"""
@@ -68,6 +69,7 @@ class Recon:
         return res
 
     def check_subdomains(self):
+        print('Start subdomains availability check')
         for item in self.model.subdomains:
             domain = item.url
             domains = []
@@ -83,9 +85,9 @@ class Recon:
             for dm in domains:
                 try:
                     self.session.get(dm, timeout=1)
-                    print(f'[+] domain {dm} avaliable')
+                    print(f'--[+] domain {dm} avaliable')
                 except (ReadTimeout, ConnectionError):
-                    print(f'[-] domain {dm} unavaliable')
+                    print(f'--[-] domain {dm} unavaliable')
                 sleep(0.5)
 
     def run(self):
@@ -96,7 +98,6 @@ class Recon:
         print('[X] Data Checked')
         self.cert()
         print('[X] Cert Checked')
-        print(self.check_sub)
         if self.check_sub:
             self.check_subdomains()
         with open('./result/rec.json', 'w') as js:
