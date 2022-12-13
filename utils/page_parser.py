@@ -1,3 +1,4 @@
+import os.path
 import re
 
 import warnings
@@ -139,6 +140,8 @@ class ContactParse:
     def run_walk(self):
         self._walk_init()
         self.run_walker()
+        if not os.path.exists('./result'):
+            os.makedirs('./result')
 
         with open('./result/phones.txt', 'w') as ph:
             ph.writelines([f'{line}\n' for line in self.phones])

@@ -2,6 +2,7 @@ import re
 import typer
 from utils.page_parser import ContactParse
 from utils.recon import Recon
+from requests import get
 
 
 app = typer.Typer()
@@ -21,7 +22,20 @@ def get_contacts(host: str = typer.Argument(..., help='Название хост
                                                help="будем ли автоматом собирать и идти по найденым страницам"),
                  subcheck: bool = typer.Option(default=False, is_flag=True,
                                                help="флаг для мода recon. будем ли проверять доступность субдоменов")):
-
+    def normalize_link(link: str):
+        if 'www' in link:
+            link = link.replace('www.', '')
+        if not link.endswith('/'):
+            link = link + '/'
+        if not link.startswith('http://') and not link.startswith('https://'):
+            proto = typer.prompt('What to use? http:// or https://. Input it')
+            if '://' in proto:
+                return f'{proto}{link}'
+            else:
+                return f'{proto}://{link}'
+        return link
+    host = normalize_link(host)
+    print(host)
     if ',' in mods:
         mods = mods.split(',')
     if 'recon' in mods:
