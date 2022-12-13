@@ -1,5 +1,5 @@
 from time import sleep
-from requests import Session
+from requests import Session, get
 from requests.exceptions import ReadTimeout, ConnectionError
 from json import dumps, dump
 from models.recon_models import Host, Cert, Subdomain, Address, MX
@@ -12,11 +12,13 @@ class Recon:
     def __init__(self, url, check_subdomains: bool = False):
         self.session = Session()
         self.session.verify = False
-        self.url = self.__normalize_url(url)
+        self.url = url# self.__normalize_url(url)
         self.model = Host(url=self.url)
         self.check_sub = check_subdomains
         self.wapp = Wappalyzer.latest()
-        tech = WebPage.new_from_url(self.url, False)
+        wp = WebPage.new_from_url(self.url, False)
+        tech = self.wapp.analyze_with_versions_and_categories(wp)
+        print(tech)
         self.model.tech = tech
 
     @staticmethod
@@ -41,13 +43,16 @@ class Recon:
         """TODO"""
         url = 'https://api.certspotter.com/v1/issuances'
         cs_params = {
-            'domain': self.url,
+            'domain': self.__normalize_url(self.url),
             'expand': 'dns_names',
             'include_subdomains': 'true'
         }
         res = self.session.get(url, params=cs_params).json()
         for cert in res:
-            self.model.certs.append(Cert(**cert))
+            try:
+                self.model.certs.append(Cert(**cert))
+            except TypeError:
+                pass
 
     def htarget(self):
         """TODO"""
@@ -63,7 +68,7 @@ class Recon:
     def dns_recon(self):
         headers = {'x-api-key': '53681419-4ce1-4132-85ac-10310ef7d642', 'Content-Type': 'application/json'}
         url = f'https://api.geekflare.com/dnsrecord'
-        data = {"url": f"https://{self.url}"}
+        data = {"url": f"{self.url}"}
         res = self.session.post(url, data=dumps(data), headers=headers).json()['data']
 
         for item in res['A']:

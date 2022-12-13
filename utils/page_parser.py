@@ -83,7 +83,7 @@ class ContactParse:
                and len(list(filter(lambda x: x in digits, list(value)))) > 4:
                 return value.replace('+', '').replace('-', '').replace(' ', '')
             elif all(True if sign in value else False for sign in '@.') and len(value.split('@')) == 2:
-                return value.replace('mailto:')
+                return value.replace('mailto:', '')
             else:
                 return value
         for item in upd_list:
